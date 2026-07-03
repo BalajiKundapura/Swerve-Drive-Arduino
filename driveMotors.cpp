@@ -20,27 +20,6 @@ int minSpeed = -Constants::maxSpeed / Constants::wheelRadius;
 
 
 void setupDriveMotors() {
-  // 1. Force the pin into an active output state so the core registers it
-  // pinMode(PA11, OUTPUT);
-  // delay(10);
-  
-  // Serial.println("Initializing Driver 1...");
-  
-  // // 2. Call init() normally
-  // int status = driverFR.init();
-  // Serial.println(status);
-  // // 3. If it returns 0 because of the channel mismatch, manually force it open
-  // if (status == 0) {
-  //   Serial.println("Applying hardware override...");
-  
-  // #if defined(_STM32_DEF_)
-  //     _configure3PWM(30000, PA10, PA9, PA11); // 30kHz switching frequency override
-  //     status = 1; 
-  //   #endif
-  // }
-  // enable more verbose output for debugging
-  // comment out if not needed
-  //SimpleFOCDebug::enable(&Serial);
 
   // driver config
   // power supply voltage [V]
@@ -51,6 +30,7 @@ void setupDriveMotors() {
   // limit the maximal dc voltage the driver can set
   // as a protection measure for the low-resistance motors
   // this value is fixed on startup
+  
   driverFR.voltage_limit = Constants::maxDriverVoltage;
   driverFL.voltage_limit = Constants::maxDriverVoltage;
   driverBR.voltage_limit = Constants::maxDriverVoltage;
@@ -126,13 +106,7 @@ void setupDriveMotors() {
 void driveFR(float speed) {
   if (speed == 0){
     motorFR.disable();
-  } else if (speed >= maxSpeed) {
-    motorFR.enable();
-    motorFR.move(maxSpeed);
-  } else if (speed <= minSpeed){
-    motorFR.enable();
-    motorFR.move(minSpeed);
-  } else {
+  }  else {
     motorFR.enable();
     motorFR.move(speed);
   }
@@ -141,13 +115,7 @@ void driveFR(float speed) {
 void driveFL(float speed) {
   if (speed == 0){
     motorFL.disable();
-  } else if (speed >= maxSpeed) {
-    motorFL.enable();
-    motorFL.move(maxSpeed);
-  } else if (speed <= minSpeed){
-    motorFL.enable();
-    motorFL.move(minSpeed);
-  } else {
+  }  else {
     motorFL.enable();
     motorFL.move(speed);
   }
@@ -156,13 +124,7 @@ void driveFL(float speed) {
 void driveBR(float speed) {
   if (speed == 0){
     motorBR.disable();
-  } else if (speed >= maxSpeed) {
-    motorBR.enable();
-    motorBR.move(maxSpeed);
-  } else if (speed <= minSpeed){
-    motorBR.enable();
-    motorBR.move(minSpeed);
-  } else {
+  }  else {
     motorBR.enable();
     motorBR.move(speed);
   }
@@ -171,13 +133,7 @@ void driveBR(float speed) {
 void driveBL(float speed) {
   if (speed == 0){
     motorBL.disable();
-  } else if (speed >= maxSpeed) {
-    motorBL.enable();
-    motorBL.move(maxSpeed);
-  } else if (speed <= minSpeed){
-    motorBL.enable();
-    motorBL.move(minSpeed);
-  } else {
+  }  else {
     motorBL.enable();
     motorBL.move(speed);
   }

@@ -1,9 +1,19 @@
+// Programmed by Joshua Rambiya
+
+// Swerve Kinematics derived from: https://www.chiefdelphi.com/t/paper-4-wheel-independent-drive-independent-steering-swerve/107383
+//                                 https://www.chiefdelphi.com/uploads/default/original/3X/8/c/8c0451987d09519712780ce18ce6755c21a0acc0.pdf
+// The best swerve drives are built by FIRST Robotics Competition students, no other swerve compares ^^^^^^^^
+
+// Credit to DroneBot Workshop for flysky reciever code: https://dronebotworkshop.com/radio-control-arduino-car/
+
 // Controls: 
 // SWD (Channel 6) -> Up - enabled, down - disabled
-// SWA (Channel 5) -> Up - Field relative swerve, down - robot relative swerve
+// SWA (Channel 5) -> Down - Field relative swerve, Up - robot relative swerve
 // Left Stick X axis (Channel 1) -> Rotate
 // Right Stick X axis (Channel 4) -> Translate left/right
 // Right Stick Y axis (Channel 2) -> Translate up/down
+
+// Type "E1" into serial monitor for E-stop
 
 
 
@@ -31,78 +41,36 @@ swerveState calculateSwerve(float inputVX, float inputVY, float inputRotation, b
 #include "constants.h"
 #include <SimpleFOC.h>
 
-
-float target_velocity = 0;
-float target_angle = 50;
-
 float estop = 0;
 
 bool fieldOriented = false;
 
 Commander command = Commander(Serial);
-void setSpeed(char* cmd) { command.scalar(&target_velocity, cmd); }
-void setAngle(char* cmd) { command.scalar(&target_angle, cmd); }
-
-void setP(char* cmd) { command.scalar(&FLKp, cmd); }
-void setI(char* cmd) { command.scalar(&FLKi, cmd); }
-void setD(char* cmd) { command.scalar(&FLKd, cmd); }
-
-
 void activateEstop(char* cmd) { command.scalar(&estop, cmd); }
 
 void setup() {
   Serial.begin(115200);
 
   setupFSRCcontrol();
-  setupGyro(); //init gyro first to enable wire2
+  setupGyro(); //init gyro first to enable wire2 since adafruit motor shield uses the same i2c bus
   setupDriveMotors(); 
   setupTurnMotors(); 
   
 
-  // add target command T
-  command.add('F', setSpeed, "target velocity");
-  command.add('T', setAngle, "target angle");
+  // E-stop through serial
   command.add('E', activateEstop, "estop");
 
-  command.add('P', setP, "P");
-  command.add('I', setI, "I");
-  command.add('D', setD, "D");
-
+  
 
 }
 
 void loop() {
-  //Serial.println("starting loop");
-  while (estop == 0 && getFSRCData(6) < 0 ){ //
-    
-    // Serial.print(getFSRCData(2));
-    // Serial.print(" | ");
-    // Serial.print(getAngleFR());
-    // Serial.print(" ");
-    // Serial.print(getAngleFL());
-    // Serial.print(" ");
-    // Serial.print(getAngleBR());
-    // Serial.print(" ");
-    // Serial.print(getAngleBL());
-    // Serial.print(" | ");
-    
-    // Serial.print(states.FL.speed);
-    // Serial.print(" ");
-    // Serial.print(states.FL.angle);
-    // Serial.print(" | ");
-    // Serial.print(getYaw());
-    // Serial.print(" ");
-    // Serial.print(states.FL.angle - getYaw());
-    // Serial.print(" | ");
-    // turnModuleBR(states.BR.angle);
-    // driveBR(states.BR.speed);
-    
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  while (estop == 0 && getFSRCData(6) < 0 ){     // only run main loop when enabled
     
     if (getFSRCData(5) <= 0) {
-      fieldOriented = true;
-    } else {
       fieldOriented = false;
+    } else {
+      fieldOriented = true;
     }
 
     swerveState states = calculateSwerve(getFSRCData(4), getFSRCData(2), getFSRCData(1)/Constants::wheelRadius, fieldOriented);
@@ -111,11 +79,11 @@ void loop() {
     driveFR(states.FR.speed);
     driveBR(states.BR.speed);
     driveBL(states.BL.speed);
-
+    
+    // turn turn motors only when needed, otherwise wheels would default back to 0 heading with no input
     unsigned long currentTime = millis();
     if (getFSRCData(4) == 0 && getFSRCData(2) == 0 && getFSRCData(1) < 10 && getFSRCData(1) > -10){
         estopTurnMotors();
-        // Serial.print("turn motors off        ");
     } else {
       if (currentTime - lastPIDTime >= PIDSampleTime) {
       
@@ -125,70 +93,39 @@ void loop() {
         turnModuleBL(states.BL.angle);
       }
     }
-    Serial.print(fieldOriented);
-    Serial.print(" ");
-    Serial.print(getYaw());
-    Serial.print(" | ");
-    Serial.print(getFSRCData(4));
-    Serial.print(" ");
-    Serial.print(getFSRCData(2));
-    Serial.print(" ");
-    Serial.print(getFSRCData(1));
-    Serial.print(" | ");
-    Serial.print(states.FL.angle);
-    Serial.print(" ");
-    Serial.print(states.FR.angle);
-    Serial.print(" ");
-    Serial.print(states.BL.angle);
-    Serial.print(" ");
-    Serial.print(states.BR.angle);
-    Serial.print(" ");
-    Serial.print(" | ");
-    Serial.print(states.FL.speed);
-    Serial.print(" ");
-    Serial.print(states.FR.speed);
-    Serial.print(" ");
-    Serial.print(states.BL.speed);
-    Serial.print(" ");
-    Serial.print(states.BR.speed);
-    Serial.print(" ");
-    //////////////////////////////////////////////////////////////////////////////////////////////////
-    
-    //Serial.print(states.BR.speed);
 
-    // Serial.print(FLKp);
-    // Serial.print(" ");
-    // Serial.print(FLKi);
-    // Serial.print(" ");
-    // Serial.print(FLKd);
+    // // stuff for debugging
+    // Serial.print(getAngleFR());
     // Serial.print(" | ");
-    //turnModuleFL(target_angle);
-    
-    
-    
+    // Serial.print(fieldOriented);
+    // Serial.print(" ");
     // Serial.print(getYaw());
     // Serial.print(" | ");
-
-    // Serial.print(getAngleFR());
+    // Serial.print(getFSRCData(4));
     // Serial.print(" ");
-    // Serial.print(getAngleFL());
-    // Serial.print(" ");
-    // Serial.print(getAngleBL());
-    // Serial.print(" ");
-    // Serial.println(getAngleBR());
-
-    // driveBR(target_velocity);
-    // driveFR(target_velocity);
-    // driveFL(target_velocity);
-    // driveBL(target_velocity);
-
-    // Serial.println(target_velocity);
-
-    // Serial.print("Ch 2: ");
     // Serial.print(getFSRCData(2));
+    // Serial.print(" ");
+    // Serial.print(getFSRCData(1));
     // Serial.print(" | ");
-    // Serial.print("Ch 3: ");
-    // Serial.println(getFSRCData(3));
+    // Serial.print(states.FL.angle);
+    // Serial.print(" ");
+    // Serial.print(states.FR.angle);
+    // Serial.print(" ");
+    // Serial.print(states.BL.angle);
+    // Serial.print(" ");
+    // Serial.print(states.BR.angle);
+    // Serial.print(" ");
+    // Serial.print(" | ");
+    // Serial.print(states.FL.speed);
+    // Serial.print(" ");
+    // Serial.print(states.FR.speed);
+    // Serial.print(" ");
+    // Serial.print(states.BL.speed);
+    // Serial.print(" ");
+    // Serial.print(states.BR.speed);
+    // Serial.print(" ");
+
+
     Serial.println("");
     command.run();
   }

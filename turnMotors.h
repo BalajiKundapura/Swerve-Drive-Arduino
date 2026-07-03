@@ -21,6 +21,4 @@ extern float errorFR;
 extern float errorBL;
 extern float errorBR;
 
-extern float FLKp, FLKi, FLKd;
-
 #endif

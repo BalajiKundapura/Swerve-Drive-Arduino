@@ -3,6 +3,6 @@
 
 // Declare your functions here
 void setupFSRCcontrol();
-int getFSRCData(int channel);
+float getFSRCData(int channel);
 
 #endif

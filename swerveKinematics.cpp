@@ -15,6 +15,11 @@ float VY = 0;
 
 swerveState calculateSwerve(float inputVX, float inputVY, float inputRotation, bool fieldOriented){
   swerveState state;
+  Serial.print(VX);
+  Serial.print(" ");
+  Serial.print(VY);
+  Serial.print(" | ");
+
   if (fieldOriented == true) {
     VX =  inputVX * cos(-getYaw() * (M_PI/180)) + inputVY * sin(-getYaw() * (M_PI/180));
     VY =  -inputVX * sin(-getYaw() * (M_PI/180)) + inputVY * cos(-getYaw() * (M_PI/180));
@@ -76,6 +81,8 @@ swerveState calculateSwerve(float inputVX, float inputVY, float inputRotation, b
   state.BR.speed = speeds[3] / Constants::wheelRadius;
   state.BR.angle = angle4;
 
+
+  // optimizing angle math so that the swerve never has to rotate more than 90 degrees at once
   if ((getAngleFR() - angle1) > 90 || (getAngleFR() - angle1) < -90) {
     state.FR.speed *= -1;
     state.FR.angle -= 180;
@@ -93,7 +100,7 @@ swerveState calculateSwerve(float inputVX, float inputVY, float inputRotation, b
     state.BR.angle -= 180;
   }
 
-  if ((getAngleBL() - angle3) > 90 ) { //|| (getAngleBL() - angle3) < -90
+  if ((getAngleBL() - angle3) > 90 || (getAngleBL() - angle3) < -90) { 
   
     state.BL.speed *= -1;
     state.BL.angle -= 180;

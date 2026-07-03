@@ -1,7 +1,7 @@
 #include <Wire.h>
 #include <MPU6050_light.h>
 
-TwoWire Wire2(PC9, PA8); // SCL = PB10, SDA = PB3
+TwoWire Wire2(PC9, PA8); // Create a new i2c bus on these pins, adafruit motor shield also will use this bus
 MPU6050 mpu(Wire2);
 
 
@@ -21,7 +21,7 @@ void setupGyro() {
   Serial.println(F("Calculating offsets, do not move MPU6050"));
   delay(1000);
   // mpu.upsideDownMounting = true; // uncomment this line if the MPU6050 is mounted upside-down
-  mpu.calcOffsets(); // gyro and accelero
+  mpu.calcOffsets(); // gyro and accelerometer offsets
   Serial.println("Done!\n");
 }
 

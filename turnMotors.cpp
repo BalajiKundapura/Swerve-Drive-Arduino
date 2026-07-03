@@ -239,7 +239,7 @@ float getAngleFR() {
 
 float getAngleFL() {
   //float mappedAngle = analogRead(FLSensor);
-  float mappedAngleFL = map(analogRead(FLSensor), 40, 1000, -180, 180);
+  float mappedAngleFL = map(analogRead(FLSensor), 40, 1000, 0, 360);
   mappedAngleFL *= -1;
 
   mappedAngleFL -= Constants::FLangleOffset;
@@ -247,7 +247,6 @@ float getAngleFL() {
   if (mappedAngleFL < -180) {
     mappedAngleFL += 360;
   }
-
   return mappedAngleFL;
 }
 
@@ -272,8 +271,6 @@ float getAngleBL() {
 
   if (mappedAngleBL < -180) {
     mappedAngleBL += 360;
-  } else if (mappedAngleBL > 180){
-    mappedAngleBL -= 360;
   }
   return mappedAngleBL;
 }
