@@ -21,8 +21,9 @@ swerveState calculateSwerve(float inputVX, float inputVY, float inputRotation, b
   Serial.print(" | ");
 
   if (fieldOriented == true) {
-    VX =  inputVX * cos(-getYaw() * (M_PI/180)) + inputVY * sin(-getYaw() * (M_PI/180));
-    VY =  -inputVX * sin(-getYaw() * (M_PI/180)) + inputVY * cos(-getYaw() * (M_PI/180));
+    float yawRad = -getYaw() * (M_PI/180);
+    VX =  inputVX * cos(yawRad) + inputVY * sin(yawRad);
+    VY =  -inputVX * sin(yawRad) + inputVY * cos(yawRad);
   } else {
     VX = inputVX;
     VY = inputVY;
